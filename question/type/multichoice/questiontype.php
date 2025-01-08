@@ -114,13 +114,13 @@ class qtype_multichoice extends question_type {
         return $options;
     }
 
-    public function save_defaults_for_new_questions(stdClass $fromform): void {
-        parent::save_defaults_for_new_questions($fromform);
-        $this->set_default_value('single', $fromform->single);
-        $this->set_default_value('shuffleanswers', $fromform->shuffleanswers);
-        $this->set_default_value('answernumbering', $fromform->answernumbering);
-        $this->set_default_value('showstandardinstruction', $fromform->showstandardinstruction);
-    }
+    // public function save_defaults_for_new_questions(stdClass $fromform): void {
+    //     parent::save_defaults_for_new_questions($fromform);
+    //     $this->set_default_value('single', $fromform->single);
+    //     $this->set_default_value('shuffleanswers', $fromform->shuffleanswers);
+    //     $this->set_default_value('answernumbering', $fromform->answernumbering);
+    //     $this->set_default_value('showstandardinstruction', $fromform->showstandardinstruction);
+    // }
 
     public function save_question_options($question) {
         global $DB;
@@ -164,7 +164,7 @@ class qtype_multichoice extends question_type {
             $answer->answer = $this->import_or_save_files($answerdata,
                     $context, 'question', 'answer', $answer->id);
             $answer->answerformat = $answerdata['format'];
-            $answer->fraction = $question->fraction[$key];
+            $answer->fraction = !empty($question->correctanswer[$key]);
             $answer->feedback = $this->import_or_save_files($question->feedback[$key],
                     $context, 'question', 'answerfeedback', $answer->id);
             $answer->feedbackformat = $question->feedback[$key]['format'];
@@ -197,33 +197,19 @@ class qtype_multichoice extends question_type {
             $options->id = $DB->insert_record('qtype_multichoice_options', $options);
         }
 
-        $options->single = $question->single;
+        $options->single = 0; // TODO: Удалить поле из БД
+        $options->answernumbering = '123';
+
         if (isset($question->layout)) {
             $options->layout = $question->layout;
         }
-        $options->answernumbering = $question->answernumbering;
+
         $options->shuffleanswers = $question->shuffleanswers;
         $options->showstandardinstruction = !empty($question->showstandardinstruction);
         $options = $this->save_combined_feedback_helper($options, $question, $context, true);
         $DB->update_record('qtype_multichoice_options', $options);
 
         $this->save_hints($question, true);
-
-        // Perform sanity checks on fractional grades.
-        if ($options->single) {
-            if ($maxfraction != 1) {
-                $result->noticeyesno = get_string('fractionsnomax', 'qtype_multichoice',
-                        $maxfraction * 100);
-                return $result;
-            }
-        } else {
-            $totalfraction = round($totalfraction, 2);
-            if ($totalfraction != 1) {
-                $result->noticeyesno = get_string('fractionsaddwrong', 'qtype_multichoice',
-                        $totalfraction * 100);
-                return $result;
-            }
-        }
     }
 
     protected function make_question_instance($questiondata) {

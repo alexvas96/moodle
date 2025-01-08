@@ -529,15 +529,29 @@ class qtype_multichoice_multi_question extends qtype_multichoice_base {
         return $numcorrect;
     }
 
+    // public function grade_response(array $response) {
+    //     $fraction = 0;
+    //     foreach ($this->order as $key => $ansid) {
+    //         if (!empty($response[$this->field($key)])) {
+    //             $fraction += $this->answers[$ansid]->fraction;
+    //         }
+    //     }
+    //     $fraction = min(max(0, $fraction), 1.0);
+    //     return array($fraction, question_state::graded_state_for_fraction($fraction));
+    // }
+
     public function grade_response(array $response) {
         $fraction = 0;
-        foreach ($this->order as $key => $ansid) {
-            if (!empty($response[$this->field($key)])) {
-                $fraction += $this->answers[$ansid]->fraction;
-            }
+        list($numright, $total) = $this->get_num_parts_right($response);
+        $numwrong = $this->get_num_selected_choices($response) - $numright;
+        $numcorrect = $this->get_num_correct_choices();
+        if ($numwrong == 0 && $numcorrect == $numright) {
+            $fraction = 1;
         }
-        $fraction = min(max(0, $fraction), 1.0);
-        return array($fraction, question_state::graded_state_for_fraction($fraction));
+
+        $state = question_state::graded_state_for_fraction($fraction);
+
+        return array($fraction, $state);
     }
 
     public function get_validation_error(array $response) {

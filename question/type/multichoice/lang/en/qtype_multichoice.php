@@ -39,6 +39,7 @@ $string['choiceno'] = 'Choice {$a}';
 $string['choices'] = 'Available choices';
 $string['clearchoice'] = 'Clear my choice';
 $string['clozeaid'] = 'Enter missing word';
+$string['correctanswer'] = 'Correct answer';
 $string['correctansweris'] = 'The correct answer is: {$a}';
 $string['correctanswersare'] = 'The correct answers are: {$a}';
 $string['correctfeedback'] = 'For any correct response';

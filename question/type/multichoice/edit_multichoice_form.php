@@ -40,26 +40,29 @@ class qtype_multichoice_edit_form extends question_edit_form {
      * @param object $mform the form being built.
      */
     protected function definition_inner($mform) {
-        $menu = array(
-            get_string('answersingleno', 'qtype_multichoice'),
-            get_string('answersingleyes', 'qtype_multichoice'),
-        );
-        $mform->addElement('select', 'single',
-                get_string('answerhowmany', 'qtype_multichoice'), $menu);
-        $mform->setDefault('single', $this->get_default_value('single',
-            get_config('qtype_multichoice', 'answerhowmany')));
+        // $menu = array(
+        //     get_string('answersingleno', 'qtype_multichoice'),
+        //     get_string('answersingleyes', 'qtype_multichoice'),
+        // );
+        // $mform->addElement('select', 'single',
+        //         get_string('answerhowmany', 'qtype_multichoice'), $menu);
+        // $mform->setDefault('single', $this->get_default_value('single',
+        //     get_config('qtype_multichoice', 'answerhowmany')));
 
         $mform->addElement('advcheckbox', 'shuffleanswers',
                 get_string('shuffleanswers', 'qtype_multichoice'), null, null, array(0, 1));
         $mform->addHelpButton('shuffleanswers', 'shuffleanswers', 'qtype_multichoice');
-        $mform->setDefault('shuffleanswers', $this->get_default_value('shuffleanswers',
-            get_config('qtype_multichoice', 'shuffleanswers')));
+        // $mform->setDefault('shuffleanswers', $this->get_default_value('shuffleanswers',
+        // get_config('qtype_multichoice', 'shuffleanswers')));
+        $mform->setDefault('shuffleanswers', 1);
 
-        $mform->addElement('select', 'answernumbering',
-                get_string('answernumbering', 'qtype_multichoice'),
-                qtype_multichoice::get_numbering_styles());
-        $mform->setDefault('answernumbering', $this->get_default_value('answernumbering',
-            get_config('qtype_multichoice', 'answernumbering')));
+        // $mform->addElement('select', 'answernumbering',
+        //         get_string('answernumbering', 'qtype_multichoice'),
+        //         qtype_multichoice::get_numbering_styles());
+
+        // $mform->setDefault('answernumbering', $this->get_default_value('answernumbering',
+        //     get_config('qtype_multichoice', 'answernumbering')));
+        $mform->setDefault('answernumbering', 'answernumbering123');
 
         $mform->addElement('selectyesno', 'showstandardinstruction',
             get_string('showstandardinstruction', 'qtype_multichoice'), null, null, [0, 1]);
@@ -81,12 +84,14 @@ class qtype_multichoice_edit_form extends question_edit_form {
         $repeated = array();
         $repeated[] = $mform->createElement('editor', 'answer',
             $label, ['rows' => 2], $this->editoroptions);
-        $repeated[] = $mform->createElement('select', 'fraction',
-                get_string('gradenoun'), $gradeoptions);
+        // $repeated[] = $mform->createElement('select', 'fraction',
+        //         get_string('gradenoun'), $gradeoptions);
+        $repeated[] = $mform->createElement('checkbox', 'correctanswer',
+                get_string('correctanswer', 'qtype_multichoice'), '', $this->editoroptions);
         $repeated[] = $mform->createElement('editor', 'feedback',
             get_string('feedback', 'question'), ['rows' => 2], $this->editoroptions);
         $repeatedoptions['answer']['type'] = PARAM_RAW;
-        $repeatedoptions['fraction']['default'] = 0;
+        // $repeatedoptions['fraction']['default'] = 0;
         $answersoption = 'answers';
         return $repeated;
     }
@@ -116,32 +121,24 @@ class qtype_multichoice_edit_form extends question_edit_form {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+
         $answers = $data['answer'];
         $answercount = 0;
-
-        $totalfraction = 0;
-        $maxfraction = -1;
-
+        $numberofcorrectanswers = 0;
         foreach ($answers as $key => $answer) {
-            // Check no of choices.
             $trimmedanswer = trim($answer['text']);
-            $fraction = (float) $data['fraction'][$key];
-            if ($trimmedanswer === '' && empty($fraction)) {
+            if (empty($trimmedanswer)) {
                 continue;
-            }
-            if ($trimmedanswer === '') {
-                $errors['fraction['.$key.']'] = get_string('errgradesetanswerblank', 'qtype_multichoice');
             }
 
             $answercount++;
+            if (!empty($data['correctanswer'][$key])) {
+                $numberofcorrectanswers++;
+            }
+        }
 
-            // Check grades.
-            if ($data['fraction'][$key] > 0) {
-                $totalfraction += $data['fraction'][$key];
-            }
-            if ($data['fraction'][$key] > $maxfraction) {
-                $maxfraction = $data['fraction'][$key];
-            }
+        if ($numberofcorrectanswers == 0) {
+            $errors['answer[0]'] = get_string('errnocorrect', 'qtype_multichoiceset');
         }
 
         if ($answercount == 0) {
@@ -149,22 +146,8 @@ class qtype_multichoice_edit_form extends question_edit_form {
             $errors['answer[1]'] = get_string('notenoughanswers', 'qtype_multichoice', 2);
         } else if ($answercount == 1) {
             $errors['answer[1]'] = get_string('notenoughanswers', 'qtype_multichoice', 2);
-
         }
 
-        // Perform sanity checks on fractional grades.
-        if ($data['single']) {
-            if ($maxfraction != 1) {
-                $errors['fraction[0]'] = get_string('errfractionsnomax', 'qtype_multichoice',
-                        $maxfraction * 100);
-            }
-        } else {
-            $totalfraction = round($totalfraction, 2);
-            if ($totalfraction != 1) {
-                $errors['fraction[0]'] = get_string('errfractionsaddwrong', 'qtype_multichoice',
-                        $totalfraction * 100);
-            }
-        }
         return $errors;
     }
 
