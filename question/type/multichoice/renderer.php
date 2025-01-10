@@ -412,13 +412,13 @@ class qtype_multichoice_multi_renderer extends qtype_multichoice_renderer_base {
 
     public function formulation_and_controls(question_attempt $qa, question_display_options $options) {
         $result = parent::formulation_and_controls($qa, $options);
-        $inputname = $qa->get_qt_field_name('answer123');
+        $inputname = $qa->get_qt_field_name('answer_text'); // ANSWER_INPUT_NAME
         $inputattributes = array(
             'type' => 'text',
             'name' => $inputname,
             'value' => 'qaz',
             'id' => $inputname,
-            'size' => 80,
+            'size' => 45,
             'class' => 'form-control d-inline',
         );
 

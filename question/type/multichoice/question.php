@@ -342,6 +342,8 @@ class qtype_multichoice_single_question extends qtype_multichoice_base {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_multichoice_multi_question extends qtype_multichoice_base {
+    private const ANSWER_INPUT_NAME = 'answer_text';
+
     public function get_renderer(moodle_page $page) {
         return $page->get_renderer('qtype_multichoice', 'multi');
     }
@@ -386,13 +388,7 @@ class qtype_multichoice_multi_question extends qtype_multichoice_base {
     }
 
     public function get_expected_data() {
-        return ['answer123' => PARAM_RAW];
-        // return array('answer' => PARAM_RAW);
-        // $expected = array();
-        // foreach ($this->order as $key => $notused) {
-        //     $expected[$this->field($key)] = PARAM_BOOL;
-        // }
-        // return $expected;
+        return [self::ANSWER_INPUT_NAME => PARAM_RAW];
     }
 
     public function summarise_response(array $response) {
@@ -480,22 +476,13 @@ class qtype_multichoice_multi_question extends qtype_multichoice_base {
     }
 
     public function is_same_response(array $prevresponse, array $newresponse) {
-        foreach ($this->order as $key => $notused) {
-            $fieldname = $this->field($key);
-            if (!question_utils::arrays_same_at_key_integer($prevresponse, $newresponse, $fieldname)) {
-                return false;
-            }
-        }
-        return true;
+        return question_utils::arrays_same_at_key_missing_is_blank(
+            $prevresponse, $newresponse, self::ANSWER_INPUT_NAME);
     }
 
     public function is_complete_response(array $response) {
-        foreach ($this->order as $key => $notused) {
-            if (!empty($response[$this->field($key)])) {
-                return true;
-            }
-        }
-        return false;
+        return array_key_exists(self::ANSWER_INPUT_NAME, $response) &&
+                ($response[self::ANSWER_INPUT_NAME] || $response[self::ANSWER_INPUT_NAME] === '0');
     }
 
     public function is_gradable_response(array $response) {
