@@ -409,4 +409,20 @@ class qtype_multichoice_multi_renderer extends qtype_multichoice_renderer_base {
 
         return parent::num_parts_correct($qa);
     }
+
+    public function formulation_and_controls(question_attempt $qa, question_display_options $options) {
+        $result = parent::formulation_and_controls($qa, $options);
+        $inputname = $qa->get_qt_field_name('answer123');
+        $inputattributes = array(
+            'type' => 'text',
+            'name' => $inputname,
+            'value' => 'qaz',
+            'id' => $inputname,
+            'size' => 80,
+            'class' => 'form-control d-inline',
+        );
+
+        $result .= html_writer::empty_tag('input', $inputattributes);
+        return $result;
+    }
 }

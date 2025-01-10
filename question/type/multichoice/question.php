@@ -386,11 +386,13 @@ class qtype_multichoice_multi_question extends qtype_multichoice_base {
     }
 
     public function get_expected_data() {
-        $expected = array();
-        foreach ($this->order as $key => $notused) {
-            $expected[$this->field($key)] = PARAM_BOOL;
-        }
-        return $expected;
+        return ['answer123' => PARAM_RAW];
+        // return array('answer' => PARAM_RAW);
+        // $expected = array();
+        // foreach ($this->order as $key => $notused) {
+        //     $expected[$this->field($key)] = PARAM_BOOL;
+        // }
+        // return $expected;
     }
 
     public function summarise_response(array $response) {
