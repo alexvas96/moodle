@@ -412,17 +412,33 @@ class qtype_multichoice_multi_renderer extends qtype_multichoice_renderer_base {
 
     public function formulation_and_controls(question_attempt $qa, question_display_options $options) {
         $result = parent::formulation_and_controls($qa, $options);
+
         $inputname = $qa->get_qt_field_name('answer_text'); // ANSWER_INPUT_NAME
+        $currentanswer = $qa->get_last_qt_var('answer_text');
+
         $inputattributes = array(
             'type' => 'text',
             'name' => $inputname,
-            'value' => 'qaz',
+            'value' => $currentanswer,
             'id' => $inputname,
             'size' => 45,
             'class' => 'form-control d-inline',
         );
 
-        $result .= html_writer::empty_tag('input', $inputattributes);
+        if ($options->readonly) {
+            $inputattributes['readonly'] = 'readonly';
+        }
+
+        $question = $qa->get_question();
+        $feedbackimg = '';
+
+        if ($options->correctness) {
+            $fraction = (int) $question->is_correct_answer($currentanswer);
+            $inputattributes['class'] .= ' ' . $this->feedback_class($fraction);
+            $feedbackimg = $this->feedback_image($fraction);
+        }
+
+        $result .= html_writer::empty_tag('input', $inputattributes) . $feedbackimg;
         return $result;
     }
 }
