@@ -86,7 +86,7 @@ class qtype_multichoice_edit_form extends question_edit_form {
             $label, ['rows' => 2], $this->editoroptions);
         // $repeated[] = $mform->createElement('select', 'fraction',
         //         get_string('gradenoun'), $gradeoptions);
-        $repeated[] = $mform->createElement('checkbox', 'correctanswer',
+        $repeated[] = $mform->createElement('checkbox', 'fraction',
                 get_string('correctanswer', 'qtype_multichoice'), '', $this->editoroptions);
         $repeated[] = $mform->createElement('editor', 'feedback',
             get_string('feedback', 'question'), ['rows' => 2], $this->editoroptions);

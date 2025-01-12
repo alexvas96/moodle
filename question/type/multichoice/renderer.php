@@ -438,7 +438,13 @@ class qtype_multichoice_multi_renderer extends qtype_multichoice_renderer_base {
             $feedbackimg = $this->feedback_image($fraction);
         }
 
-        $result .= html_writer::empty_tag('input', $inputattributes) . $feedbackimg;
+        $tag = html_writer::tag(
+            'label',
+            get_string('answercolon', 'qtype_numerical'),
+            array('for' => $inputattributes['id'])
+        ) . ' ';
+
+        $result .= $tag . html_writer::empty_tag('input', $inputattributes) . $feedbackimg;
         return $result;
     }
 }
