@@ -143,8 +143,8 @@ class qtype_multichoice extends question_type {
         }
 
         // Insert all the new answers.
-        $totalfraction = 0;
-        $maxfraction = -1;
+        // $totalfraction = 0;
+        // $maxfraction = -1;
         foreach ($question->answer as $key => $answerdata) {
             if (trim($answerdata['text']) == '') {
                 continue;
@@ -164,19 +164,19 @@ class qtype_multichoice extends question_type {
             $answer->answer = $this->import_or_save_files($answerdata,
                     $context, 'question', 'answer', $answer->id);
             $answer->answerformat = $answerdata['format'];
-            $answer->fraction = !empty($question->correctanswer[$key]);
+            $answer->fraction = !empty($question->fraction2[$key]);
             $answer->feedback = $this->import_or_save_files($question->feedback[$key],
                     $context, 'question', 'answerfeedback', $answer->id);
             $answer->feedbackformat = $question->feedback[$key]['format'];
 
             $DB->update_record('question_answers', $answer);
 
-            if ($question->fraction[$key] > 0) {
-                $totalfraction += $question->fraction[$key];
-            }
-            if ($question->fraction[$key] > $maxfraction) {
-                $maxfraction = $question->fraction[$key];
-            }
+            // if ($question->fraction[$key] > 0) {
+            //     $totalfraction += $question->fraction[$key];
+            // }
+            // if ($question->fraction[$key] > $maxfraction) {
+            //     $maxfraction = $question->fraction[$key];
+            // }
         }
 
         // Delete any left over old answer records.
